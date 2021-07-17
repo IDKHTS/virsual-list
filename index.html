@@ -10,10 +10,11 @@
 
 <body>
     <fieldset>
-        <legend>长列表</legend>
-
+        <legend>固定高度的长列表</legend>
+        <label for="item-height">每条数据高度：</label><input type="number" id="item-height" value="64"><br>
+        <label for="visiable-count">每页可视条数：</label><input type="number" id="visiable-count" value="10"><br>
+        <button onclick="refresh()">Refresh</button>
         <div id="long-list"></div>
-        <button onclick="render(0)">click</button>
     </fieldset>
     <style>
         #long-list {
@@ -27,11 +28,16 @@
     </style>
 
     <script>
-        const ItemHeight = 64 // 每条数据固定高度ItemHeightpx
-        const VisiableCount = 10 // 可见数据VisiableCount条
+        const itemHeightEL = document.querySelector('#item-height')
+        const visiableCountEL = document.querySelector('#visiable-count')
+        // const ItemHeight = 64 // 每条数据固定高度ItemHeightpx
+        // const VisiableCount = 10 // 可见数据VisiableCount条
+        let ItemHeight = 64 // 每条数据固定高度ItemHeightpx
+        let VisiableCount = 10 // 可见数据VisiableCount条
+
         const longListEl = document.querySelector('#long-list')
         const longListELOffset = longListEl.getBoundingClientRect().top
-        console.log(longListELOffset)
+        // console.log(longListELOffset)
         let longArr = new Array(1000).fill(1).map((v,i)=> { return { data: Math.floor(Math.random() * 1000) ,idx:i} })
         function creatEL(tag, children) {
             let el = document.createElement(tag);
@@ -54,6 +60,7 @@
                 tmpEL.classList.add('item')
                 fragment.appendChild(tmpEL)
             }
+
             longListEl.innerHTML = ''
             longListEl.appendChild(fragment)
             longListEl.style.paddingTop = `${startIdx * ItemHeight}px`
@@ -73,7 +80,13 @@
         }
         window.addEventListener('scroll',handleScroll)
 
-
+        function refresh(){
+            ItemHeight = parseInt(itemHeightEL.value)
+            VisiableCount = parseInt(visiableCountEL.value)
+            // console.log(ItemHeight,VisiableCount)
+            render(0)
+        }
+        refresh()
     </script>
 </body>
 
