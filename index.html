@@ -19,6 +19,8 @@
     <style>
         #long-list {
             border: solid 1px black;
+            position: relative;
+            top: 0
         }
 
         .item {
@@ -27,18 +29,23 @@
         }
     </style>
 
+    <script src="virsual-list.js"></script>
     <script>
-        const itemHeightEL = document.querySelector('#item-height')
-        const visiableCountEL = document.querySelector('#visiable-count')
-        // const ItemHeight = 64 // 每条数据固定高度ItemHeightpx
-        // const VisiableCount = 10 // 可见数据VisiableCount条
-        let ItemHeight = 64 // 每条数据固定高度ItemHeightpx
-        let VisiableCount = 10 // 可见数据VisiableCount条
+        // // 构造1000条数据
+        let longArr = new Array(10000).fill(1).map((v, i) => { return { data: Math.floor(Math.random() * 1000), idx: i } })
 
-        const longListEl = document.querySelector('#long-list')
-        const longListELOffset = longListEl.getBoundingClientRect().top
-        // console.log(longListELOffset)
-        let longArr = new Array(1000).fill(1).map((v,i)=> { return { data: Math.floor(Math.random() * 1000) ,idx:i} })
+        const vl = new VirsualList({
+            el: document.querySelector('#long-list'),
+            dataSource: longArr,
+            itemHeight: 64,
+            visiableCount: 10,
+            creatItem: creatItem,
+        })
+
+        // 监听
+        window.addEventListener('scroll', vl.handleScroll)
+
+        // 工具函数-创建tag标签，并且带有子标签/文本children
         function creatEL(tag, children) {
             let el = document.createElement(tag);
             if (children && Array.isArray(children)) {
@@ -50,44 +57,13 @@
             }
             return el;
         }
-
-        function render(startIdx) {
-            let endIdx = startIdx + VisiableCount
-            let data = longArr.slice(startIdx, endIdx + VisiableCount)
-            let fragment = new DocumentFragment()
-            for (let i = 0; i < data.length; i++) {
-                let tmpEL = creatEL('div', JSON.stringify(data[i]))
-                tmpEL.classList.add('item')
-                fragment.appendChild(tmpEL)
-            }
-
-            longListEl.innerHTML = ''
-            longListEl.appendChild(fragment)
-            longListEl.style.paddingTop = `${startIdx * ItemHeight}px`
-            longListEl.style.paddingBottom = `${(longArr.length - (endIdx + VisiableCount)) * ItemHeight}px`
-
+        function creatItem(data) {
+            const tmpEL = creatEL('div', JSON.stringify(data))
+            tmpEL.classList.add('item')
+            return tmpEL
         }
-
-        function handleScroll(e) {
-            // 兼容 iOS Safari/Webview
-            doc = window.document.body.scrollTop ? window.document.body : window.document.documentElement
-
-            const scrollTop = doc.scrollTop
-            const dataOffset = scrollTop - longListELOffset > 0 ? scrollTop - longListELOffset : 0
-            startIdx = Math.floor(dataOffset/ItemHeight)
-            console.log('startIdx',startIdx)
-            render(startIdx)
-        }
-        window.addEventListener('scroll',handleScroll)
-
-        function refresh(){
-            ItemHeight = parseInt(itemHeightEL.value)
-            VisiableCount = parseInt(visiableCountEL.value)
-            // console.log(ItemHeight,VisiableCount)
-            render(0)
-        }
-        refresh()
     </script>
+
 </body>
 
 </html>
